@@ -19,7 +19,18 @@ if [ ! -f "/config/stikked.php" ]; then
 	else sed -i 's|{{'$KEY'}}|'${STIKKED_CONF[$KEY]}'|g' /config/stikked.php
 	fi
 	done
+
+	CRON_KEY=$(date +%s | sha256sum | base64 | head -c 32)
+	sed -i 's|{{CRON_KEY}}|'${CRON_KEY}'|g' /config/stikked.php
 fi
+
+[[ ! -e "/config/crontab" ]] && \
+	mv /defaults/stikkedcron /config/crontab && \
+	sed -i 's|{{CRON_KEY}}|'${CRON_KEY}'|g' /config/crontab &&
+	sed -i 's|{{BASE_URL}}|'${STIKKED_CONF[BASE_URL]}'|g' /config/crontab
+
+rm /etc/crontab/abc 2>/dev/null
+ln -s /config/crontab /etc/crontab/abc
 
 rm /app/stikked/htdocs/application/config/stikked.php 2>/dev/null
 ln -s /config/stikked.php /app/stikked/htdocs/application/config/stikked.php

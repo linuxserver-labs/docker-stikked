@@ -108,7 +108,7 @@ $config['content_expiration'] = '-1 week';
 // Example cron: */5 * * * * curl --silent http://yoursite.com/cron/[key]
 //
 //
-$config['cron_key'] = '';
+$config['cron_key'] = '{{CRON_KEY}}';
 
 /**
  * url shortener config
