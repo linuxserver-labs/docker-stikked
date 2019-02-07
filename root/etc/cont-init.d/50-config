@@ -1,0 +1,31 @@
+#!/usr/bin/with-contenv bash
+
+declare -A STIKKED_CONF
+STIKKED_CONF[SITE_NAME]=${SITE_NAME:-Stikked}
+STIKKED_CONF[BASE_URL]=${BASE_URL:-https://yourpastebin.com/}
+STIKKED_CONF[DB_HOST]=${DB_HOST:-mariadb}
+STIKKED_CONF[DB_DATABASE]=${DB_DATABASE:-stikked}
+STIKKED_CONF[DB_USER]=${DB_USER:-root}
+STIKKED_CONF[DB_PASS]=${DB_PASS:-root}
+STIKKED_CONF[DB_DRIVER]=${DB_DRIVER:-mysql}
+
+mkdir /data 2>/dev/null
+
+if [ ! -f "/config/stikked.php" ]; then
+	mv /defaults/stikked.php /config/stikked.php
+	for KEY in "${!STIKKED_CONF[@]}"; do \
+	if [[ ${STIKKED_CONF[$KEY]} == "" ]]; then \
+	:
+	else sed -i 's|{{'$KEY'}}|'${STIKKED_CONF[$KEY]}'|g' /config/stikked.php
+	fi
+	done
+fi
+
+rm /app/stikked/htdocs/application/config/stikked.php 2>/dev/null
+ln -s /config/stikked.php /app/stikked/htdocs/application/config/stikked.php
+
+# permissions
+chown -R abc:abc \
+	/app/stikked \
+	/config \
+	/data
