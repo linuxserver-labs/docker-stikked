@@ -1,4 +1,4 @@
-FROM lsiobase/alpine.nginx:3.8
+FROM lsiobase/alpine.nginx:3.12
 
 # set version label
 ARG BUILD_DATE
@@ -7,11 +7,9 @@ LABEL build_version="Linuxserver.io version:- ${VERSION} Build-date:- ${BUILD_DA
 LABEL maintainer="alex-phillips"
 
 RUN \
- echo "**** install build packages ****" && \
- apk add --no-cache --virtual=build-dependencies \
-    curl && \
  echo "**** install runtime packages ****" && \
  apk add --no-cache \
+   curl \
    php7 \
    php7-ctype \
    php7-gd \
@@ -29,8 +27,6 @@ RUN \
  /tmp/stikked.tar.gz -C \
 	/app/stikked/ --strip-components=1 && \
  echo "**** cleanup ****" && \
- apk del --purge \
-    build-dependencies && \
  rm -rf \
     /root/.cache \
     /tmp/*

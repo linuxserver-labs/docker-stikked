@@ -1,1 +1,1 @@
-*/5 * * * * curl --silent {{BASE_URL}}{{CRON_KEY}}
+*/5 * * * * curl --silent {{BASE_URL}}cron/{{CRON_KEY}}

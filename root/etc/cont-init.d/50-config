@@ -30,7 +30,7 @@ fi
 	sed -i 's|{{BASE_URL}}|'${STIKKED_CONF[BASE_URL]}'|g' /config/crontab
 
 rm /etc/crontab/abc 2>/dev/null
-ln -s /config/crontab /etc/crontab/abc
+cp /config/crontab /etc/crontabs/abc
 
 rm /app/stikked/htdocs/application/config/stikked.php 2>/dev/null
 ln -s /config/stikked.php /app/stikked/htdocs/application/config/stikked.php
