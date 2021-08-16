@@ -23,23 +23,25 @@ jobs:
     - name: Prepare
       id: prep
       run: |
-        PACKAGE_NAME=$(echo "ghcr.io/$GITHUB_REPOSITORY" | sed 's/linuxserver-labs\/docker-//')
+        PACKAGE_NAME=$(echo "$GITHUB_REPOSITORY" | sed 's/docker-//')
+        REGISTRY_IMAGE=$(echo "ghcr.io/$GITHUB_REPOSITORY" | sed 's/docker-//')
         VERSION=$(curl -sX GET "https://api.github.com/repos/claudehohl/stikked/releases/latest" | awk '/tag_name/{print $4;exit}' FS='[""]')
         if [[ $GITHUB_REF == refs/tags/v* ]]; then
           VERSION=${GITHUB_REF#refs/tags/}
         fi
-        TAGS="linuxserver-labs/${PACKAGE_NAME}:${VERSION},linuxserver-labs/${PACKAGE_NAME}:latest"
+        TAGS="${REGISTRY_IMAGE}:${VERSION},${REGISTRY_IMAGE}:latest"
         echo ::set-output name=tags::${TAGS}
         if [ "${{github.event_name}}" == "pull_request" ]; then
           echo ::set-output name=push::false
-          echo ::set-output name=cache_from::"type=registry,ref=linuxserver-labs/${PACKAGE_NAME}:buildcache"
+          echo ::set-output name=cache_from::"type=registry,ref=${REGISTRY_IMAGE}:buildcache"
           echo ::set-output name=cache_to::""
         else
           echo ::set-output name=push::true
-          echo ::set-output name=cache_from::"type=registry,ref=linuxserver-labs/${PACKAGE_NAME}:buildcache"
-          echo ::set-output name=cache_to::"type=registry,ref=linuxserver-labs/${PACKAGE_NAME}:buildcache,mode=max"
+          echo ::set-output name=cache_from::"type=registry,ref=${REGISTRY_IMAGE}:buildcache"
+          echo ::set-output name=cache_to::"type=registry,ref=${REGISTRY_IMAGE}:buildcache,mode=max"
         fi
         echo ::set-output name=github_server_url::"${GITHUB_SERVER_URL}"
+        echo ::set-output name=PACKAGE_NAME::"${PACKAGE_NAME}"
         echo ::set-output name=BUILD_DATE::$(date '+%Y-%m-%dT%H:%M:%S%:z')
         echo ::set-output name=VERSION::${VERSION}
 
@@ -66,7 +68,7 @@ jobs:
         image="linuxserver-labs/invoiceninja"
         tag="latest"
         token=$(curl -sX GET \
-          "https://ghcr.io/token?scope=repository%3Alinuxserver-labs%2F${PACKAGE_NAME}%3Apull" \
+          "https://ghcr.io/token?scope=repository%3Alinuxserver-labs%2F${{ steps.prep.outputs.PACKAGE_NAME }}%3Apull" \
           | jq -r '.token')
         multidigest=$(curl -s \
           --header "Accept: application/vnd.docker.distribution.manifest.v2+json" \
